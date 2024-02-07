@@ -1,4 +1,4 @@
-infinite-craft-test
+[infinite-craft](https://neal.fun/infinite-craft/) Test
 ========================
 
 |                     |🌍 Earth       |🏔️ Mountain           |🌋 Volcano          |🏔️ Mountain Range   |🌋 Lava          |🌋 Yellowstone |🪨 Stone       |🌋 Eruption         |🌋 Supervolcano            |🌋 Super Volcano    |🪨 Rock         |🔪 Obsidian   |🪨 Boulder       |🌠 Supernova|💫 Meteor    |🌋 Super Lava|🌋 Super Eruption|🌋 Super Super Volcano|💎 Diamond|🥃 Glass|🗡️ Blade|💣 Doomsday|🔮 Super Obsidian|🕳️ Black Hole|🌌 Universe|🌌 Galaxy|☀️ Sun|💥 Big Bang|🌙 Moon|💫 Meteorite|🌑 Crater|🌋 Apocalypse|🦖 Dinosaur|🔨 Iron|💫 Asteroid|
