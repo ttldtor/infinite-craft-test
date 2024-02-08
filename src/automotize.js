@@ -1,3 +1,5 @@
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
 async function pair(a, b) {
   if (typeof a === "object") {
     a = a["result"];
@@ -56,10 +58,58 @@ async function combine() {
 //console.log(await combine("Glass", "Glass", "Glass", "Glass", "Glass", "Glass"));
 //console.log(await combine("Earth", "Earth", "Earth", "Earth", "Earth", "Earth", "Earth"));
 
-let items = new Set(["Earth"]);
-
-async function combineStep() {
-    items.forEach();
+function makePair(a, b) {
+  return {
+    first: a,
+    second: b
+  };
 }
 
-items.forEach()
+function makePairStr(a, b) {
+  return JSON.stringify(makePair(a, b));
+}
+
+async function combineStep(items, receipts, combines, currentIndex) {
+  let itemsToAdd = [];
+
+  for (let index = 0; index <= currentIndex; index++) {
+    const result = await pair(items[index], items[currentIndex]);
+    const itemName = result["result"];
+    const itemEmoji = result["emoji"];
+
+    if (receipts[itemName] === undefined || !(receipts[itemName] instanceof Array)) {
+      receipts[itemName] = [];
+
+      itemsToAdd.push(itemName);
+    }
+
+    let receipt = makePairStr(items[items.length - 1], items[currentIndex]);
+    let reverseReceipt = makePairStr(items[currentIndex], items[items.length - 1]);
+
+    if (!combines.hasOwnProperty(receipt)) {
+      combines[receipt] = itemName;
+      receipts[itemName].push(receipt);
+    }
+
+    if (!combines.hasOwnProperty(reverseReceipt)) {
+      combines[reverseReceipt] = itemName;
+      receipts[itemName].push(reverseReceipt);
+    }
+    
+    await sleep(500);
+  }
+
+  return itemsToAdd;
+}
+
+let items = ["Earth"];
+let receipts = {};
+let combines = {};
+
+(async () => {
+  for (let index = 0; index < 50; index++) {
+    items = items.concat(await combineStep(items, receipts, combines, index));
+  }
+  
+  console.log(200, items);
+})();
