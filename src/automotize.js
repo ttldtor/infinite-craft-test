@@ -1,3 +1,16 @@
+/*
+
+Open https://neal.fun/infinite-craft/
+Open the browser console.
+Allow text insertion (if the browser prohibits it).
+Paste the script.
+Run.
+Make a coffee.
+Explore.
+Meditate.
+
+*/
+
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 async function pair(a, b) {
