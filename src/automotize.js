@@ -12,7 +12,7 @@ async function pair(a, b) {
   const response = await fetch("https://neal.fun/api/infinite-craft/pair?first=" + a + "&second=" + b, {
     "credentials": "omit",
     "headers": {
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0",
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0", //Your user agent
       "Accept": "*/*",
       "Sec-Fetch-Dest": "empty",
       "Sec-Fetch-Mode": "cors",
@@ -103,13 +103,15 @@ async function combineStep(items, receipts, combines, currentIndex) {
 }
 
 let items = ["Earth"];
-let receipts = {};
-let combines = {};
+let receipts = {}; // {Item.Name -> ["{first: SourceItem1.Name, second : SourceItem2.Name}", "{first: SourceItem2.Name, second : SourceItem1.Name}", ...], ...}
+let combines = {}; // {"{first: SourceItem1.Name, second : SourceItem2.Name}" -> Item.Name, "{first: SourceItem2.Name, second : SourceItem1.Name}" -> Item.Name, ...}
 
 (async () => {
-  for (let index = 0; index < 50; index++) {
+  for (let index = 0; index < 1000; index++) {
     items = items.concat(await combineStep(items, receipts, combines, index));
   }
   
   console.log(200, items);
+  console.log(201, receipts);
+  console.log(202, combines);
 })();
