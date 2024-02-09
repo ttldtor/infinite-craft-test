@@ -82,7 +82,9 @@ function makePairStr(a, b) {
   return JSON.stringify(makePair(a, b));
 }
 
-async function combineStep(items, itemToRecipes, recipeToItem, currentIndex, sleepFor = 500) {
+async function combineStep(items, itemEmojis, itemToRecipes, recipeToItem, currentIndex, sleepFor = 500, storeNothing = false) {
+  console.log("[" + currentIndex + "]: ", itemEmojis[currentIndex] + " " + items[currentIndex]);
+
   let itemsToAdd = [];
   let emojisToAdd = []
 
@@ -90,6 +92,17 @@ async function combineStep(items, itemToRecipes, recipeToItem, currentIndex, sle
     const result = await pair(items[index], items[currentIndex]);
     const itemName = result["result"];
     const itemEmoji = result["emoji"];
+    let recipe = makePairStr(items[index], items[currentIndex]);
+    let reverseRecipe = makePairStr(items[currentIndex], items[index]);
+
+    if (itemName === "Nothing" && storeNothing === false) {
+      recipeToItem[recipe] = itemName;
+      recipeToItem[reverseRecipe] = itemName;
+
+      await sleep(sleepFor);
+
+      continue;
+    }
 
     if (itemToRecipes[itemName] === undefined || !(itemToRecipes[itemName] instanceof Array)) {
       itemToRecipes[itemName] = [];
@@ -98,18 +111,10 @@ async function combineStep(items, itemToRecipes, recipeToItem, currentIndex, sle
       emojisToAdd.push((itemEmoji === undefined) ? "" : itemEmoji);
     }
 
-    let recipe = makePairStr(items[index], items[currentIndex]);
-    let reverseRecipe = makePairStr(items[currentIndex], items[index]);
-
-    if (!recipeToItem.hasOwnProperty(recipe)) {
-      recipeToItem[recipe] = itemName;
-      itemToRecipes[itemName].push(recipe);
-    }
-
-    if (!recipeToItem.hasOwnProperty(reverseRecipe)) {
-      recipeToItem[reverseRecipe] = itemName;
-      itemToRecipes[itemName].push(reverseRecipe);
-    }
+    recipeToItem[recipe] = itemName;
+    recipeToItem[reverseRecipe] = itemName;
+    itemToRecipes[itemName].push(recipe);
+    itemToRecipes[itemName].push(reverseRecipe);
     
     await sleep(sleepFor);
   }
@@ -125,11 +130,11 @@ let numberOfSteps = 1000;
 
 (async () => {
   for (let index = 0; index < numberOfSteps; index++) {
-    [itemsToAdd, emojisToAdd] = await combineStep(items, itemToRecipes, recipeToItem, index, 500);
+    [itemsToAdd, emojisToAdd] = await combineStep(items, itemEmojis, itemToRecipes, recipeToItem, index, 500, false);
     items = items.concat(itemsToAdd);
-    itemEmojis = emojisToAdd.concat(itemsToAdd);
+    itemEmojis = itemEmojis.concat(emojisToAdd);
 
-    if (index > 0 && index % 100 == 0) {
+    if (index > 0 && index % 10 == 0) {
       console.log("items: ", items);
       console.log("itemToRecipes: ", itemToRecipes);
       console.log("recipeToItem: ", recipeToItem);
