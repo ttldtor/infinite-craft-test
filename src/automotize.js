@@ -82,49 +82,74 @@ function makePairStr(a, b) {
   return JSON.stringify(makePair(a, b));
 }
 
-async function combineStep(items, receipts, combines, currentIndex) {
+async function combineStep(items, itemToRecipes, recipeToItem, currentIndex, sleepFor = 500) {
   let itemsToAdd = [];
+  let emojisToAdd = []
 
   for (let index = 0; index <= currentIndex; index++) {
     const result = await pair(items[index], items[currentIndex]);
     const itemName = result["result"];
     const itemEmoji = result["emoji"];
 
-    if (receipts[itemName] === undefined || !(receipts[itemName] instanceof Array)) {
-      receipts[itemName] = [];
+    if (itemToRecipes[itemName] === undefined || !(itemToRecipes[itemName] instanceof Array)) {
+      itemToRecipes[itemName] = [];
 
       itemsToAdd.push(itemName);
+      emojisToAdd.push((itemEmoji === undefined) ? "" : itemEmoji);
     }
 
-    let receipt = makePairStr(items[items.length - 1], items[currentIndex]);
-    let reverseReceipt = makePairStr(items[currentIndex], items[items.length - 1]);
+    let recipe = makePairStr(items[index], items[currentIndex]);
+    let reverseRecipe = makePairStr(items[currentIndex], items[index]);
 
-    if (!combines.hasOwnProperty(receipt)) {
-      combines[receipt] = itemName;
-      receipts[itemName].push(receipt);
+    if (!recipeToItem.hasOwnProperty(recipe)) {
+      recipeToItem[recipe] = itemName;
+      itemToRecipes[itemName].push(recipe);
     }
 
-    if (!combines.hasOwnProperty(reverseReceipt)) {
-      combines[reverseReceipt] = itemName;
-      receipts[itemName].push(reverseReceipt);
+    if (!recipeToItem.hasOwnProperty(reverseRecipe)) {
+      recipeToItem[reverseRecipe] = itemName;
+      itemToRecipes[itemName].push(reverseRecipe);
     }
     
-    await sleep(500);
+    await sleep(sleepFor);
   }
 
-  return itemsToAdd;
+  return [itemsToAdd, emojisToAdd];
 }
 
 let items = ["Earth"];
-let receipts = {}; // {Item.Name -> ["{first: SourceItem1.Name, second : SourceItem2.Name}", "{first: SourceItem2.Name, second : SourceItem1.Name}", ...], ...}
-let combines = {}; // {"{first: SourceItem1.Name, second : SourceItem2.Name}" -> Item.Name, "{first: SourceItem2.Name, second : SourceItem1.Name}" -> Item.Name, ...}
+let itemEmojis = ["🌏"];
+let itemToRecipes = {}; // {Item.Name -> ["{first: SourceItem1.Name, second : SourceItem2.Name}", "{first: SourceItem2.Name, second : SourceItem1.Name}", ...], ...}
+let recipeToItem = {}; // {"{first: SourceItem1.Name, second : SourceItem2.Name}" -> Item.Name, "{first: SourceItem2.Name, second : SourceItem1.Name}" -> Item.Name, ...}
+let numberOfSteps = 1000;
 
 (async () => {
-  for (let index = 0; index < 1000; index++) {
-    items = items.concat(await combineStep(items, receipts, combines, index));
+  for (let index = 0; index < numberOfSteps; index++) {
+    [itemsToAdd, emojisToAdd] = await combineStep(items, itemToRecipes, recipeToItem, index, 500);
+    items = items.concat(itemsToAdd);
+    itemEmojis = emojisToAdd.concat(itemsToAdd);
+
+    if (index > 0 && index % 100 == 0) {
+      console.log("items: ", items);
+      console.log("itemToRecipes: ", itemToRecipes);
+      console.log("recipeToItem: ", recipeToItem);
+    }
   }
-  
-  console.log(200, items);
-  console.log(201, receipts);
-  console.log(202, combines);
+
+  console.log("items: ", items);
+  console.log("itemToRecipes: ", itemToRecipes);
+  console.log("recipeToItem: ", recipeToItem);
 })();
+
+
+/*
+
+((Earth + (Earth + (Earth + Earth))) +
+ ((Earth + (Earth + (Earth + Earth))) +
+  ((Earth + (Earth + Earth)) + ((Earth + (Earth + Earth)) + ((Earth + Earth) + (Earth + Earth)))))) +
+  ((Earth + (Earth + (Earth + (Earth + Earth)))) +
+   ((Earth + (Earth + (Earth + (Earth + Earth)))) +
+    ((Earth + (Earth + (Earth + Earth))) + (Earth + (Earth + (Earth + (Earth + Earth)))))))
+    -> 🔥 Fire
+
+*/
