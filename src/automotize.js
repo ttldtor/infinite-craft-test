@@ -97,7 +97,10 @@ async function combineStep(items, itemEmojis, itemToRecipes, recipeToItem, curre
 
     if (itemName === "Nothing" && storeNothing === false) {
       recipeToItem[recipe] = itemName;
-      recipeToItem[reverseRecipe] = itemName;
+
+      if (recipe !== reverseRecipe) {
+        recipeToItem[reverseRecipe] = itemName;
+      }
 
       await sleep(sleepFor);
 
@@ -112,9 +115,12 @@ async function combineStep(items, itemEmojis, itemToRecipes, recipeToItem, curre
     }
 
     recipeToItem[recipe] = itemName;
-    recipeToItem[reverseRecipe] = itemName;
     itemToRecipes[itemName].push(recipe);
-    itemToRecipes[itemName].push(reverseRecipe);
+
+    if (recipe !== reverseRecipe) {
+      recipeToItem[reverseRecipe] = itemName;
+      itemToRecipes[itemName].push(reverseRecipe);
+    }
     
     await sleep(sleepFor);
   }
